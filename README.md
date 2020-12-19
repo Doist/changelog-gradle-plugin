@@ -47,17 +47,15 @@ configure<ChangelogExtension> {
     pendingChangelogDir.set(project.file("pending-changelog"))
     changelogFile.set(project.file("CHANGELOG.md"))
 
-    validator {
-        maxLength = 72
-        doesNotEndWithDot = true
-    }
+    addRule("max length is 72 characters") { it.length <= 72 }
+    addRule("cannot end with a dot") { !it.endsWith(".") }
 
     commit {
         val version = getVersion()
         val date = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
         prefix = "## $version - $date"
         entryPrefix = "- "
-        insertAtLine = 0
+        insertAtLine = 2
     }
 }
 ```
@@ -67,7 +65,7 @@ You can now run:
 ./gradlew checkChangelog
 ```
 This task reads every line in every file in the `pendingChangelogDir` folder and checks if the line
-does not break any rule specified in the `validator {...}` section.
+does not break any rule.
 
 You can also run:
 ```
@@ -88,17 +86,8 @@ configure<ChangelogExtension> {
     // Changelog file.
     changelogFile.set(project.file("CHANGELOG.md"))
 
-    // checkChangelog task configuration.
-    validator {
-        // Entry max length.
-        maxLength = 72
-        
-        // Entry must not end with a dot.
-        doesNotEndWithDot = true
-        
-        // Entry must end with a dot.
-        endsWithDot = true
-    }
+    // Rules.
+    addRule("max length is 72 characters") { it.length <= 72 }
 
     // commitChangelog task configuration. 
     commit {
