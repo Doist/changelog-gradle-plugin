@@ -9,7 +9,7 @@ import org.gradle.kotlin.dsl.closureOf
 @Suppress("unused", "UnstableApiUsage")
 open class ChangelogExtension(private val project: Project) {
 
-    internal val validatorConfig = ValidatorConfig()
+    internal val rules = mutableListOf<Rule>()
 
     internal val commitConfig = CommitConfig()
 
@@ -21,12 +21,12 @@ open class ChangelogExtension(private val project: Project) {
     val changelogFile: RegularFileProperty =
         project.objects.fileProperty().convention { project.file("changelog.md") }
 
-    fun validator(config: ValidatorConfig.() -> Unit) {
-        project.configure(validatorConfig, closureOf(config))
+    fun addRule(description: String, check: (String) -> Boolean) {
+        rules.add(Rule(description, check))
     }
 
-    fun validator(closure: Closure<*>) {
-        project.configure(validatorConfig, closure)
+    fun addRule(description: String, check: Closure<Boolean>) {
+        rules.add(Rule(description) { check.call(it) })
     }
 
     fun commit(config: CommitConfig.() -> Unit) {

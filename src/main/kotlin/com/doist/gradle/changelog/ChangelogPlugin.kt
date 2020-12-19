@@ -12,7 +12,7 @@ class ChangelogPlugin : Plugin<Project> {
 
         tasks.register<ChangelogCheckTask>("checkChangelog") {
             pendingChangelogDir.set(extension.pendingChangelogDir)
-            validatorConfig.set(extension.validatorConfig)
+            rules.set(extension.rules)
         }
 
         tasks.register<ChangelogCommitTask>("commitChangelog") {
