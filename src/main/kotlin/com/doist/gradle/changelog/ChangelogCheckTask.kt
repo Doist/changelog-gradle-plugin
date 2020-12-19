@@ -15,7 +15,7 @@ import org.gradle.language.base.plugins.LifecycleBasePlugin
 abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
     init {
         description = "Checks pending changelog entries."
-        group = LifecycleBasePlugin.VERIFICATION_GROUP
+        group = "changelog"
     }
 
     @get:InputDirectory
@@ -39,12 +39,7 @@ abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
             .toList()
 
         if (invalidEntries.isNotEmpty()) {
-            val errorMessage = invalidEntries.joinToString(
-                separator = "\n",
-                prefix = "Broken changelog entries:\n"
-            ) { it.asString() }
-
-            logger.error(errorMessage)
+            invalidEntries.forEach { logger.error(it.toErrorString()) }
 
             throw GradleException("Changelog entries check failed.")
         }
@@ -53,13 +48,13 @@ abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
     /**
      * Returns for example: "Some entry" at changelog_entry.txt exceeds 5 characters limit.
      */
-    private fun FileValidator.InvalidChangelogEntry.asString(): String {
+    private fun FileValidator.InvalidChangelogEntry.toErrorString(): String {
         val error = when (brokenRule) {
             is EntryValidator.Rule.MaxLength -> "exceeds ${brokenRule.limit} characters limit"
             is EntryValidator.Rule.EndsWithDot -> "does not end with a dot"
             is EntryValidator.Rule.DoesNotEndWithDot -> "ends with a dot"
         }
 
-        return "\"$entry\" in ${file.name} $error."
+        return "e: ${file.absolutePath}: \"$entry\" $error."
     }
 }

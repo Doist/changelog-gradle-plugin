@@ -16,6 +16,7 @@ import org.gradle.kotlin.dsl.property
 abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
     init {
         description = "Adds pending changelog entries into the changelog file."
+        group = "changelog"
     }
 
     @get:InputDirectory

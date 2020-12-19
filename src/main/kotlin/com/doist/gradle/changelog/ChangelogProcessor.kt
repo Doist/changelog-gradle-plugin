@@ -5,10 +5,12 @@ import java.io.File
 internal class ChangelogProcessor(private val config: CommitConfig) {
 
     fun collectPendingEntries(file: File): List<String> {
-        return when {
-            file.isDirectory -> file.listFiles().flatMap { collectPendingEntries(it) }
-            else -> file.readLines().filter { it.isNotBlank() }
-        }
+        return file.walk()
+            .filter { it.isFile }
+            .map { it.readLines() }
+            .flatten()
+            .filter { it.isNotBlank() }
+            .toList()
     }
 
     fun insertEntries(changelogFile: File, entries: List<String>) {
@@ -27,6 +29,6 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
     }
 
     fun removePendingEntries(file: File) {
-        file.listFiles().forEach { it.deleteRecursively() }
+        file.listFiles()?.forEach { it.deleteRecursively() }
     }
 }
