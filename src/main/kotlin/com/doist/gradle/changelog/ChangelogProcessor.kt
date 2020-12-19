@@ -21,7 +21,7 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
         val postfix = config.postfix?.plus("\n") ?: ""
         val entryPrefix = config.entryPrefix ?: ""
         val entryPostfix = config.entryPostfix ?: ""
-        val entriesBlock = entries.joinToString("\n", prefix, postfix) {
+        val entriesBlock = entries.sorted().joinToString("\n", prefix, postfix) {
             entryPrefix + it + entryPostfix
         }
         changelog.add(config.insertAtLine, entriesBlock)
