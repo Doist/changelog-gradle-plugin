@@ -5,8 +5,6 @@ import java.io.RandomAccessFile
 import java.util.LinkedList
 
 internal class ChangelogProcessor(private val config: CommitConfig) {
-    private val lineSeparator = System.lineSeparator()
-
     fun collectPendingEntries(file: File): List<String> {
         return file.walk()
             .filter { it.isFile }
@@ -34,11 +32,34 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
             changelog.add("")
         }
 
+        val lineSeparator = changelogFile.getLineSeparator()
         changelogFile.writeText(changelog.joinToString(lineSeparator))
     }
 
     fun removePendingEntries(file: File) {
         file.listFiles()?.forEach { it.deleteRecursively() }
+    }
+
+    private fun File.getLineSeparator(): String {
+        val lineSeparator = findFirst(listOf('\n'.toInt(), '\r'.toInt()))
+        return when (lineSeparator) {
+            '\n'.toInt() -> "\n"
+            '\r'.toInt() -> "\r\n"
+            else -> System.lineSeparator()
+        }
+    }
+
+    private fun File.findFirst(chars: List<Int>): Int? {
+        return reader().use { reader ->
+            var char: Int
+            while (true) {
+                char = reader.read()
+                if (char == -1) break
+                if (char in chars) return@use char
+            }
+
+            null
+        }
     }
 
     private fun File.endsWithEmptyLine(): Boolean {
