@@ -33,15 +33,6 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
         val pendingChangelogDir = pendingChangelogDir.asPendingChangelogDir() ?: return
         val changelogFile = changelogFile.get().asFile
 
-        if (!changelogFile.exists()) {
-            runCatching {
-                changelogFile.mkdirs()
-                changelogFile.createNewFile()
-            }.onFailure {
-                throw GradleException("Cannot create ${changelogFile.name} file.")
-            }
-        }
-
         if (!changelogFile.canWrite()) {
             throw GradleException("Cannot modify ${changelogFile.name} file.")
         }
