@@ -1,8 +1,6 @@
 package com.doist.gradle.changelog
 
 import java.io.File
-import java.io.RandomAccessFile
-import java.util.LinkedList
 
 internal class ChangelogProcessor(private val config: CommitConfig) {
     fun collectPendingEntries(file: File): List<String> {
@@ -17,58 +15,40 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
     fun insertEntries(changelogFile: File, entries: List<String>) {
         if (entries.isEmpty()) return
 
-        val changelog = LinkedList(changelogFile.readLines())
-        var position = config.insertAtLine
+        val changelog = changelogFile.readText()
+        val lineSeparator = changelog.getLineSeparator()
 
-        config.prefix?.let { changelog.add(position++, it) }
+        val entriesBlock = buildEntriesString(entries, lineSeparator)
+        val newChangelog = changelog.insertAtLine(entriesBlock, config.insertAtLine)
 
+        changelogFile.writeText(newChangelog)
+    }
+
+    private fun buildEntriesString(entries: List<String>, lineSeparator: String): String {
         val entryPrefix = config.entryPrefix ?: ""
         val entryPostfix = config.entryPostfix ?: ""
-        entries.sorted().forEach { changelog.add(position++, entryPrefix + it + entryPostfix) }
 
-        config.postfix?.let { changelog.add(position++, it) }
-
-        if (changelogFile.endsWithEmptyLine()) {
-            changelog.add("")
+        return buildString {
+            config.prefix?.let { append(it).append(lineSeparator) }
+            entries.sorted().forEach {
+                append(entryPrefix).append(it).append(entryPostfix).append(lineSeparator)
+            }
+            config.postfix?.let { append(it).append(lineSeparator) }
         }
-
-        val lineSeparator = changelogFile.getLineSeparator()
-        changelogFile.writeText(changelog.joinToString(lineSeparator))
     }
 
     fun removePendingEntries(file: File) {
         file.listFiles()?.forEach { it.deleteRecursively() }
     }
 
-    private fun File.getLineSeparator(): String {
-        val lineSeparator = findFirst(listOf('\n'.toInt(), '\r'.toInt()))
-        return when (lineSeparator) {
-            '\n'.toInt() -> "\n"
-            '\r'.toInt() -> "\r\n"
-            else -> System.lineSeparator()
-        }
+    private fun String.insertAtLine(text: String, line: Int): String {
+        if (line == 0) return text + this
+
+        var passedLines = 0
+        val position = indexOfFirst { it == '\n' && ++passedLines == line } + 1
+        return this.substring(0, position) + text + this.substring(position)
     }
 
-    private fun File.findFirst(chars: List<Int>): Int? {
-        return reader().use { reader ->
-            var char: Int
-            while (true) {
-                char = reader.read()
-                if (char == -1) break
-                if (char in chars) return@use char
-            }
-
-            null
-        }
-    }
-
-    private fun File.endsWithEmptyLine(): Boolean {
-        RandomAccessFile(this, "r").use { handler ->
-            val fileLength = handler.length()
-            if (fileLength == 0L) return true
-            handler.seek(fileLength - 1)
-            val lastChar = handler.readByte().toChar()
-            return lastChar == '\n'
-        }
-    }
+    private fun String.getLineSeparator() =
+        findAnyOf(listOf("\n", "\r\n"))?.second ?: System.lineSeparator()
 }
