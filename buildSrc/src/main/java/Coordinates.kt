@@ -1,7 +1,7 @@
 object PluginCoordinates {
     const val ID = "com.doist.gradle.changelog"
     const val GROUP = "com.doist.gradle"
-    const val VERSION = "0.0.1"
+    const val VERSION = "0.0.2"
     const val IMPLEMENTATION_CLASS = "com.doist.gradle.changelog.ChangelogPlugin"
 }
 
