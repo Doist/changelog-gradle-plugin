@@ -5,7 +5,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 import org.gradle.kotlin.dsl.listProperty
@@ -17,7 +16,7 @@ abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
         group = "changelog"
     }
 
-    @get:InputDirectory
+    @get:Input
     val pendingChangelogDir: DirectoryProperty = project.objects.directoryProperty()
 
     @get:Input
