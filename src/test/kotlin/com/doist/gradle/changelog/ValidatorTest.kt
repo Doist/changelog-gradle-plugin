@@ -1,6 +1,7 @@
 package com.doist.gradle.changelog
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -27,8 +28,15 @@ class ValidatorTest {
 
         val result = validator.findInvalidEntriesIn(file)
 
+        assertEquals(2, result.size)
         assertEquals(Validator.InvalidEntry(file, 0, notTooLongRule), result[0])
         assertEquals(Validator.InvalidEntry(file, 1, noDotRule), result[1])
-        assertEquals(2, result.size)
+
+        val keep = testFolder.newFile(".gitkeep").apply {
+            writeText(" ")
+        }
+        val keepResult = validator.findInvalidEntriesIn(keep)
+
+        assertTrue(keepResult.isEmpty())
     }
 }
