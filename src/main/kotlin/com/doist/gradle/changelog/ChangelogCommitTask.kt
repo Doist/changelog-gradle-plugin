@@ -32,7 +32,7 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
 
     @TaskAction
     fun commitChangelogEntries() {
-        val pendingChangelogDir = pendingChangelogDir.asPendingChangelogDir() ?: return
+        val pendingChangelogDir = pendingChangelogDir.get().asFile
         val changelogFile = changelogFile.get().asFile
 
         if (!changelogFile.canWrite()) {

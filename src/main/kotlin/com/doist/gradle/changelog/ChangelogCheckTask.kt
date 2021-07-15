@@ -24,7 +24,7 @@ abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
 
     @TaskAction
     fun checkChangelogEntries() {
-        val changelogDir = pendingChangelogDir.asPendingChangelogDir() ?: return
+        val changelogDir = pendingChangelogDir.get().asFile
 
         val validator = Validator(rules.get())
 
