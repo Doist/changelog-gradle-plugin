@@ -73,7 +73,8 @@ You can also run:
 ``` 
 This task appends every line from every file in the `pendingChangelogDir` folder to the
 `changelogFile` file. It uses the configuration specified in the `commit {...}` section. It also 
-removes every file in the `pendingChangelogDir`.
+removes every file in the `pendingChangelogDir`. To avoid removing the folder itself, we recommend
+putting a file named `.gitkeep.` in `pendingChangelogDir`.
 
 ## Configuration ⚙️
 

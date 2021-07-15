@@ -1,6 +1,7 @@
 package com.doist.gradle.changelog
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -46,5 +47,45 @@ class ChangelogProcessorTest {
 
         """.trimIndent()
         assertEquals(expectedChangelog, changelogFile.readText())
+    }
+
+    @Test
+    fun `don't remove gitkeep file`() {
+        val entry = testFolder.newFile("fix.something")
+        val keep = testFolder.newFile(".gitkeep")
+        entry.writeText("")
+        keep.writeText("")
+
+        val changelogProcessor = ChangelogProcessor(
+            CommitConfig(
+                prefix = "## 0.0.2",
+                postfix = "",
+                entryPrefix = "- ",
+                insertAtLine = 2
+            )
+        )
+
+        changelogProcessor.removePendingEntries(testFolder.root)
+
+        assertEquals(listOf(keep.name), testFolder.root.listFiles().map { it.name })
+    }
+
+    @Test
+    fun `gitkeep file doesn't exist`() {
+        val entry = testFolder.newFile("fix.something")
+        entry.writeText("")
+
+        val changelogProcessor = ChangelogProcessor(
+            CommitConfig(
+                prefix = "## 0.0.2",
+                postfix = "",
+                entryPrefix = "- ",
+                insertAtLine = 2
+            )
+        )
+
+        changelogProcessor.removePendingEntries(testFolder.root)
+
+        assertTrue(testFolder.root.listFiles().isEmpty())
     }
 }

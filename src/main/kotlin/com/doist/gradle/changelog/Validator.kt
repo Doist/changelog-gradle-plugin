@@ -5,6 +5,9 @@ import java.io.File
 internal class Validator(private val rules: List<Rule>) {
     fun findInvalidEntriesIn(file: File): List<InvalidEntry> {
         val invalidChangelogEntries = mutableListOf<InvalidEntry>()
+
+        if (file.name == ".gitkeep") return invalidChangelogEntries
+
         file.readLines().forEachIndexed { index, line ->
             rules.forEach { rule ->
                 if (!rule.check(line)) {

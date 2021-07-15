@@ -38,7 +38,9 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
     }
 
     fun removePendingEntries(file: File) {
-        file.listFiles()?.forEach { it.deleteRecursively() }
+        file.listFiles()
+            ?.filter { it.name != ".gitkeep" }
+            ?.forEach { it.deleteRecursively() }
     }
 
     private fun String.insertAtLine(text: String, line: Int): String {
