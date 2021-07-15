@@ -49,6 +49,44 @@ class ChangelogProcessorTest {
     }
 
     @Test
+    fun `inserting message`() {
+        val changelogFile = testFolder.newFile()
+        val changelog = """
+            # Changelog
+
+            ## 0.0.1
+            - Bug fix 1
+            - Bug fix 2
+
+        """.trimIndent()
+        changelogFile.writeText(changelog)
+
+        val changelogProcessor = ChangelogProcessor(
+            CommitConfig(
+                prefix = "## 0.0.2",
+                postfix = "",
+                entryPrefix = "- ",
+                insertAtLine = 2
+            )
+        )
+
+        changelogProcessor.insertMessage(changelogFile, "No major changes")
+
+        val expectedChangelog = """
+            # Changelog
+
+            ## 0.0.2
+            No major changes
+
+            ## 0.0.1
+            - Bug fix 1
+            - Bug fix 2
+
+        """.trimIndent()
+        assertEquals(expectedChangelog, changelogFile.readText())
+    }
+
+    @Test
     fun `collect pending entries`() {
         testFolder.newFile("fix.something").apply { writeText("Fix something") }
         testFolder.newFile(".gitkeep").apply { writeText("Don't remove this file") }

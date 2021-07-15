@@ -41,6 +41,7 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
         val pendingChangelogDir = pendingChangelogDir.get().asFile
         val ignoreFiles = ignoreFiles.get()
         val changelogFile = changelogFile.get().asFile
+        val emptyChangelogMessage = emptyChangelogMessage.get()
 
         if (!changelogFile.canWrite()) {
             throw GradleException("Cannot modify ${changelogFile.name} file.")
@@ -48,11 +49,11 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
 
         val commitConfig = commitConfig.get()
         with(ChangelogProcessor(commitConfig)) {
-            var pendingEntries = collectPendingEntries(pendingChangelogDir, ignoreFiles)
-            if (pendingEntries.isEmpty()) {
-                pendingEntries = listOf(emptyChangelogMessage.get())
+            val pendingEntries = collectPendingEntries(pendingChangelogDir, ignoreFiles)
+            when {
+                pendingEntries.isNotEmpty() -> insertEntries(changelogFile, pendingEntries)
+                else -> insertMessage(changelogFile, emptyChangelogMessage)
             }
-            insertEntries(changelogFile, pendingEntries)
             removePendingEntries(pendingChangelogDir, ignoreFiles)
         }
     }

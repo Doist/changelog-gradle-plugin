@@ -25,6 +25,16 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
         changelogFile.writeText(newChangelog)
     }
 
+    fun insertMessage(changelogFile: File, message: String) {
+        val changelog = changelogFile.readText()
+        val lineSeparator = changelog.getLineSeparator()
+
+        val entriesBlock = buildMessageString(message, lineSeparator)
+        val newChangelog = changelog.insertAtLine(entriesBlock, config.insertAtLine)
+
+        changelogFile.writeText(newChangelog)
+    }
+
     private fun buildEntriesString(entries: List<String>, lineSeparator: String): String {
         val entryPrefix = config.entryPrefix ?: ""
         val entryPostfix = config.entryPostfix ?: ""
@@ -34,6 +44,14 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
             entries.sorted().forEach {
                 append(entryPrefix).append(it).append(entryPostfix).append(lineSeparator)
             }
+            config.postfix?.let { append(it).append(lineSeparator) }
+        }
+    }
+
+    private fun buildMessageString(message: String, lineSeparator: String): String {
+        return buildString {
+            config.prefix?.let { append(it).append(lineSeparator) }
+            append(message).append(lineSeparator)
             config.postfix?.let { append(it).append(lineSeparator) }
         }
     }
