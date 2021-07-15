@@ -89,6 +89,9 @@ configure<ChangelogExtension> {
     
     // Changelog file.
     changelogFile.set(project.file("CHANGELOG.md"))
+    
+    // Fallback message when there are no pending changes.
+    emptyChangelogMessage.set("No major changes")
 
     // Rules.
     addRule("max length is 72 characters") { it.length <= 72 }
