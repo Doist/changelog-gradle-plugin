@@ -22,15 +22,21 @@ abstract class ChangelogCheckTask : DefaultTask(), VerificationTask {
     @get:Input
     val rules: ListProperty<Rule> = project.objects.listProperty()
 
+    @get:Input
+    val ignoreFiles: ListProperty<String> =
+        project.objects.listProperty<String>().convention(listOf(".gitkeep"))
+
     @TaskAction
     fun checkChangelogEntries() {
         val changelogDir = pendingChangelogDir.get().asFile
+        val ignoreFiles = ignoreFiles.get()
 
         val validator = Validator(rules.get())
 
         val invalidEntries = changelogDir
             .walk()
             .filter { it.isFile }
+            .filter { it.name !in ignoreFiles }
             .map { validator.findInvalidEntriesIn(it) }
             .flatten()
             .toList()

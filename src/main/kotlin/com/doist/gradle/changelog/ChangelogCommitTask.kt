@@ -4,11 +4,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
+import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 
 @Suppress("UnstableApiUsage")
@@ -20,6 +22,10 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
 
     @get:Input
     val pendingChangelogDir: DirectoryProperty = project.objects.directoryProperty()
+
+    @get:Input
+    val ignoreFiles: ListProperty<String> =
+        project.objects.listProperty<String>().convention(listOf(".gitkeep"))
 
     @get:InputFile
     val changelogFile: RegularFileProperty = project.objects.fileProperty()
@@ -33,6 +39,7 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
     @TaskAction
     fun commitChangelogEntries() {
         val pendingChangelogDir = pendingChangelogDir.get().asFile
+        val ignoreFiles = ignoreFiles.get()
         val changelogFile = changelogFile.get().asFile
 
         if (!changelogFile.canWrite()) {
@@ -41,12 +48,12 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
 
         val commitConfig = commitConfig.get()
         with(ChangelogProcessor(commitConfig)) {
-            var pendingEntries = collectPendingEntries(pendingChangelogDir)
+            var pendingEntries = collectPendingEntries(pendingChangelogDir, ignoreFiles)
             if (pendingEntries.isEmpty()) {
                 pendingEntries = listOf(emptyChangelogMessage.get())
             }
             insertEntries(changelogFile, pendingEntries)
-            removePendingEntries(pendingChangelogDir)
+            removePendingEntries(pendingChangelogDir, ignoreFiles)
         }
     }
 }

@@ -4,8 +4,10 @@ import groovy.lang.Closure
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 
 @Suppress("unused", "UnstableApiUsage")
@@ -19,6 +21,9 @@ open class ChangelogExtension(private val project: Project) {
         project.objects.directoryProperty().convention(
             project.layout.projectDirectory.dir("changelog")
         )
+
+    val ignoreFiles: ListProperty<String> =
+        project.objects.listProperty<String>().convention(listOf(".gitkeep"))
 
     val changelogFile: RegularFileProperty =
         project.objects.fileProperty().convention { project.file("changelog.md") }

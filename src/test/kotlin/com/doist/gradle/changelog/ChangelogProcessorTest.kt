@@ -1,7 +1,6 @@
 package com.doist.gradle.changelog
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -50,7 +49,18 @@ class ChangelogProcessorTest {
     }
 
     @Test
-    fun `don't remove gitkeep file`() {
+    fun `collect pending entries`() {
+        testFolder.newFile("fix.something").apply { writeText("Fix something") }
+        testFolder.newFile(".gitkeep").apply { writeText("Don't remove this file") }
+
+        val changelogProcessor = ChangelogProcessor(CommitConfig())
+        val entries = changelogProcessor.collectPendingEntries(testFolder.root, listOf(".gitkeep"))
+
+        assertEquals(listOf("Fix something"), entries)
+    }
+
+    @Test
+    fun `removing pending entries`() {
         val entry = testFolder.newFile("fix.something")
         val keep = testFolder.newFile(".gitkeep")
         entry.writeText("")
@@ -65,27 +75,8 @@ class ChangelogProcessorTest {
             )
         )
 
-        changelogProcessor.removePendingEntries(testFolder.root)
+        changelogProcessor.removePendingEntries(testFolder.root, listOf(".gitkeep"))
 
-        assertEquals(listOf(keep.name), testFolder.root.listFiles().map { it.name })
-    }
-
-    @Test
-    fun `gitkeep file doesn't exist`() {
-        val entry = testFolder.newFile("fix.something")
-        entry.writeText("")
-
-        val changelogProcessor = ChangelogProcessor(
-            CommitConfig(
-                prefix = "## 0.0.2",
-                postfix = "",
-                entryPrefix = "- ",
-                insertAtLine = 2
-            )
-        )
-
-        changelogProcessor.removePendingEntries(testFolder.root)
-
-        assertTrue(testFolder.root.listFiles().isEmpty())
+        assertEquals(listOf(".gitkeep"), testFolder.root.listFiles().map { it.name })
     }
 }

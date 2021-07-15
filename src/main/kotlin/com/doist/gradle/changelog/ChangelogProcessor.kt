@@ -3,9 +3,10 @@ package com.doist.gradle.changelog
 import java.io.File
 
 internal class ChangelogProcessor(private val config: CommitConfig) {
-    fun collectPendingEntries(file: File): List<String> {
+    fun collectPendingEntries(file: File, ignoreFiles: List<String>): List<String> {
         return file.walk()
             .filter { it.isFile }
+            .filter { it.name !in ignoreFiles }
             .map { it.readLines() }
             .flatten()
             .filter { it.isNotBlank() }
@@ -37,9 +38,9 @@ internal class ChangelogProcessor(private val config: CommitConfig) {
         }
     }
 
-    fun removePendingEntries(file: File) {
+    fun removePendingEntries(file: File, ignoreFiles: List<String>) {
         file.listFiles()
-            ?.filter { it.name != ".gitkeep" }
+            ?.filter { it.name !in ignoreFiles }
             ?.forEach { it.deleteRecursively() }
     }
 
