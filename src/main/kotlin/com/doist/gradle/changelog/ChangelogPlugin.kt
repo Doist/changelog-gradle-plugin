@@ -19,6 +19,7 @@ class ChangelogPlugin : Plugin<Project> {
             pendingChangelogDir.set(extension.pendingChangelogDir)
             changelogFile.set(extension.changelogFile)
             commitConfig.set(extension.commitConfig)
+            emptyChangelogMessage.set(extension.emptyChangelogMessage)
         }
     }
 }

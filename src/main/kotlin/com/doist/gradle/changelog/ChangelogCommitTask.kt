@@ -27,6 +27,9 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
     @get:Input
     val commitConfig: Property<CommitConfig> = project.objects.property()
 
+    @get:Input
+    val emptyChangelogMessage: Property<String> = project.objects.property()
+
     @TaskAction
     fun commitChangelogEntries() {
         val pendingChangelogDir = pendingChangelogDir.asPendingChangelogDir() ?: return
@@ -38,7 +41,10 @@ abstract class ChangelogCommitTask : DefaultTask(), VerificationTask {
 
         val commitConfig = commitConfig.get()
         with(ChangelogProcessor(commitConfig)) {
-            val pendingEntries = collectPendingEntries(pendingChangelogDir)
+            var pendingEntries = collectPendingEntries(pendingChangelogDir)
+            if (pendingEntries.isEmpty()) {
+                pendingEntries = listOf(emptyChangelogMessage.get())
+            }
             insertEntries(changelogFile, pendingEntries)
             removePendingEntries(pendingChangelogDir)
         }
