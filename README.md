@@ -84,6 +84,9 @@ configure<ChangelogExtension> {
     // Changelog directory with pending entries.
     pendingChangelogDir.set(project.file("changelog"))
     
+    // Files to ignore in pendingChangelogDir.
+    ignoreFiles.set(listOf(".gitkeep"))
+    
     // Changelog file.
     changelogFile.set(project.file("CHANGELOG.md"))
 
