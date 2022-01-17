@@ -12,6 +12,7 @@ jobs:
       GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
       GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
+    timeout-minutes: 60
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
