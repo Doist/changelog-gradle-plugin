@@ -19,29 +19,22 @@ repositories {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }
 
 gradlePlugin {
+    website.set(PluginBundle.WEBSITE)
+    vcsUrl.set(PluginBundle.VCS)
+
     plugins {
         create(PluginCoordinates.ID) {
             id = PluginCoordinates.ID
             implementationClass = PluginCoordinates.IMPLEMENTATION_CLASS
             version = PluginCoordinates.VERSION
-        }
-    }
-}
-
-pluginBundle {
-    website = PluginBundle.WEBSITE
-    vcsUrl = PluginBundle.VCS
-    description = PluginBundle.DESCRIPTION
-    tags = PluginBundle.TAGS
-
-    plugins {
-        getByName(PluginCoordinates.ID) {
-            displayName = PluginBundle.DISPLAY_NAME
+            displayName = PluginCoordinates.DISPLAY_NAME
+            description = PluginCoordinates.DESCRIPTION
+            tags.set(PluginCoordinates.TAGS)
         }
     }
 }
@@ -108,8 +101,4 @@ tasks.register("preMerge") {
 
 tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
-}
-
-kotlinDslPluginOptions {
-    experimentalWarning.set(false)
 }
