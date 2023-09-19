@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: Cache Gradle Caches
         uses: actions/cache@v1
         with:
